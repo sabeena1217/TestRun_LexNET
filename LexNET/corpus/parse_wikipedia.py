@@ -329,7 +329,7 @@ def firstCheck(token):
     strToken = strToken[:1].lower() + strToken[1:]
     print(strToken)
 
-    nlp = spacy.load('en')
+    nlp = spacy.load('en_core_web_sm')
     token = nlp(unicode(strToken))
     for sent in token.sents:
         for token in sent:
