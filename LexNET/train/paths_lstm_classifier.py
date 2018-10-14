@@ -339,6 +339,14 @@ def train(builder, model, model_parameters, X_train, y_train, nepochs, alpha=0.0
         total_loss = 0.0
 
         epoch_indices = np.random.permutation(len(y_train))
+        # >>> np.random.permutation(10)
+        # array([1, 7, 4, 3, 0, 9, 2, 5, 8, 6])
+
+        # >>> arr = np.arange(9).reshape((3, 3))
+        # >>> np.random.permutation(arr)
+        # array([[6, 7, 8],
+        #        [0, 1, 2],
+        #        [3, 4, 5]])
 
         for minibatch in range(nminibatches):
 
@@ -352,6 +360,14 @@ def train(builder, model, model_parameters, X_train, y_train, nepochs, alpha=0.0
                                      dropout, x_y_vectors=x_y_vectors[batch_indices[i]] if x_y_vectors is not None else None,
                                      num_hidden_layers=num_hidden_layers),
                 y_train[batch_indices[i]])) for i in range(minibatch_size)])
+
+            ## This performs an elementwise sum over all the expressions included.
+            # All expressions should have the same dimension.
+            # e = dy.esum([e1, e2])
+            ## which is equivalent to:
+            # e_ = e1 + e2
+
+
             total_loss += loss.value() # forward computation
             loss.backward()
             trainer.update()
@@ -387,7 +403,12 @@ def create_computation_graph(num_lemmas, num_pos, num_dep, num_directions, num_r
     """
     # model = Model() -- gives error? tried to fix by looking at dynet tutorial examples -- GB
     dy.renew_cg()
+    # Renew the computation graph.
+    # Call this before building any new computation graph
+
     model = dy.ParameterCollection()
+    # ParameterCollection to hold the parameters
+
     network_input = LSTM_HIDDEN_DIM
 
     builder = dy.LSTMBuilder(NUM_LAYERS, lemma_dimension + POS_DIM + DEP_DIM + DIR_DIM, network_input, model)
@@ -402,8 +423,13 @@ def create_computation_graph(num_lemmas, num_pos, num_dep, num_directions, num_r
     model_parameters = {}
 
     if num_hidden_layers == 0:
+        # model_parameters['W_cnn'] = model.add_parameters((1, WIN_SIZE, EMB_SIZE, FILTER_SIZE))  # cnn weights
+        # model_parameters['b_cnn'] = model.add_parameters((FILTER_SIZE))  # cnn bias
+
         model_parameters['W1'] = model.add_parameters((num_relations, network_input))
         model_parameters['b1'] = model.add_parameters((num_relations, 1))
+    # A ParameterCollection is a container for Parameters and LookupParameters.
+    # dynet.Trainer objects take ParameterCollection objects that define which parameters are being trained.
 
     elif num_hidden_layers == 1:
 
@@ -416,6 +442,9 @@ def create_computation_graph(num_lemmas, num_pos, num_dep, num_directions, num_r
         raise ValueError('Only 0 or 1 hidden layers are supported')
 
     model_parameters['lemma_lookup'] = model.add_lookup_parameters((num_lemmas, lemma_dimension))
+    #LookupParameters represents a table of parameters.
+    # They are used to embed a set of discrete objects (e.g. word embeddings). These are sparsely updated.
+
 
     # Pre-trained word embeddings
     if wv is not None:

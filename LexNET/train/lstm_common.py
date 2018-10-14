@@ -86,19 +86,67 @@ def load_embeddings(file_name, vocabulary):
         words, vectors = zip(*[line.strip().split(' ', 1) for line in f_in])
     wv = np.loadtxt(vectors)
 
+
+
+    # # setting the max parameter to 1, will return a list with 2 elements!
+    # txt = "apple#banana#cherry#orange"
+    # x = txt.split("#", 1)
+    # ['apple', 'banana#cherry#orange']
+
+    # a = ("John", "Charles", "Mike")
+    # b = ("Jenny", "Christy", "Monica", "Vicky")
+    # x = zip(a, b)
+    # print(tuple(x))
+    # (('John', 'Jenny'), ('Charles', 'Christy'), ('Mike', 'Monica'))
+
+
     # Add the unknown words
     unknown_vector = np.random.random_sample((wv.shape[1],))
+    print("unknown_vector")
+    print(unknown_vector)
+
+    # >>> np.random.random_sample()
+    # 0.47108547995356098
+    # Return random floats in the half-open interval [0.0, 1.0).
+
+    # >>> 5 * np.random.random_sample((3, 2)) - 5
+    # array([[-3.99149989, -0.52338984],
+    #        [-2.99091858, -0.79479508],
+    #        [-1.23204345, -1.75224494]])
+    # Three-by-two array of random numbers from [-5, 0):
+
 
     word_set = set(words)
+    # A set, in Python, is just like the mathematical set.
+    # It does not hold duplicate values, and is unordered.
+    # tuple is immutable, set is mutable.
+
+
     unknown_words = list(set(vocabulary).difference(set(words)))
+    print("unknown_words")
+    print(unknown_words)
 
     # Create vectors for MWEs - sum of word embeddings, and OOV words
     unknown_word_vectors = [np.add.reduce([wv[words.index(w)] if w in word_set else unknown_vector
                                            for w in word.split(' ')])
                             for word in unknown_words]
+    print("unknown_word_vectors")
+    print(unknown_word_vectors)
 
-    wv = np.vstack((wv, unknown_word_vectors))
+    wv = np.vstack((wv, unknown_word_vectors)) #error
+    # ValueError: all the input array dimensions except for the concatenation axis must match exactly
     words = list(words) + unknown_words
+
+    # Stack arrays in sequence vertically (row wise).
+    # >>> a = np.array([[1], [2], [3]])
+    # >>> b = np.array([[2], [3], [4]])
+    # >>> np.vstack((a,b))
+    # array([[1],
+    #        [2],
+    #        [3],
+    #        [2],
+    #        [3],
+    #        [4]])
 
     print 'Known lemmas:', len(vocabulary) - len(unknown_words), '/', len(vocabulary)
 
@@ -145,8 +193,20 @@ def get_paths(corpus, x, y):
     :return:
     """
     x_to_y_paths = corpus.get_relations(x, y)
+    print ("x_to_y_paths: ")
+    print (x_to_y_paths)
+
     y_to_x_paths = corpus.get_relations(y, x)
+    print ("y_to_x_paths: ")
+    print (y_to_x_paths)
+
     paths = {corpus.get_path_by_id(path): count for (path, count) in x_to_y_paths.iteritems()}
+    print("paths b4 update: ")
+    print(paths)
+
     paths.update({corpus.get_path_by_id(path).replace('X/', '@@@').replace('Y/', 'X/').replace('@@@', 'Y/'): count
                   for (path, count) in y_to_x_paths.iteritems()})
+    print("paths after update: ")
+    print(paths)
+
     return paths

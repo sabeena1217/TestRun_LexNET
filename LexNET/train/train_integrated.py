@@ -30,6 +30,7 @@ MAX_PATHS_PER_PAIR = -1 # Set to K > 0 if you want to limit the number of path p
 
 def main():
     np.random.seed(133)
+    # The seed is for when we want repeatable results.
 
     # Load the relations
     with codecs.open(args.dataset_prefix + '/relations.txt', 'r', 'utf-8') as f_in:
@@ -84,6 +85,7 @@ def main():
     print 'Loading path files...'
     x_y_vectors, dataset_instances, pos_index, dep_index, dir_index, pos_inverted_index, dep_inverted_index, \
     dir_inverted_index = load_paths_and_word_vectors(corpus, dataset_keys, word_index)
+
     print 'Number of words %d, number of pos tags: %d, number of dependency labels: %d, number of directions: %d' % \
           (len(word_index), len(pos_index), len(dep_index), len(dir_index))
 
@@ -177,7 +179,9 @@ def get_vocabulary(corpus, dataset_keys):
                        for path in get_paths(corpus, x_id, y_id).keys()
                        for edge in path.split('_')
                        if x_id > 0 and y_id > 0])
-                       
+    print("path_lemmas")
+    print(path_lemmas)
+
     x_y_words = set([x for (x, y) in dataset_keys]).union([y for (x, y) in dataset_keys])
     return list(path_lemmas.union(x_y_words))
 
