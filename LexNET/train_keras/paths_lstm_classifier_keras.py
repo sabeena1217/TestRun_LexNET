@@ -78,11 +78,6 @@ class PathLSTMClassifierKeras:
         model.fit(X_train, y_train, validation_data=(X_val, y_val), nb_epoch=3, batch_size=64)
         print 'Done!'
 
-def create_computation_graph(num_lemmas, num_pos, num_dep, num_directions, num_relations,
-                             wv=None, use_xy_embeddings=False, num_hidden_layers=0, lemma_dimension=50):
-
-    sequence_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
-    embedded_sequences = embedding_layer(sequence_input)
 
 def create_computation_graph(num_lemmas, num_pos, num_dep, num_directions, num_relations,
                              wv=None, use_xy_embeddings=False, num_hidden_layers=0, lemma_dimension=50):
