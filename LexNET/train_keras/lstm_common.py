@@ -83,7 +83,6 @@ def load_embeddings(file_name, vocabulary):
     :return: the vocabulary and the word vectors
     """
     with codecs.open(file_name, 'r', 'utf-8') as f_in:
-
         words, vectors = zip(*[line.strip().split(' ', 1) for line in f_in])
     wv = np.loadtxt(vectors)
 
@@ -194,6 +193,7 @@ def get_paths(corpus, x, y):
     :return:
     """
     x_to_y_paths = corpus.get_relations(x, y)
+    print (x,y)
     print ("x_to_y_paths: ")
     print (x_to_y_paths)
 

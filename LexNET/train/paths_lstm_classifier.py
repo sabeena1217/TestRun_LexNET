@@ -237,14 +237,22 @@ def process_one_instance(builder, model, model_parameters, instance, path_cache,
 
     # Compute the averaged path
     num_paths = reduce(lambda x, y: x + y, instance.itervalues())
+    # sum of paths
     path_embbedings = [get_path_embedding_from_cache(path_cache, builder, lemma_lookup, pos_lookup, dep_lookup,
                                                      dir_lookup, path, update, dropout) * count
                        for path, count in instance.iteritems()]
-    input_vec = dy.esum(path_embbedings) * (1.0 / num_paths)
+
+
+    # input_vec = path_embbedings * (1.0 / num_paths)
+
+
+    input_vec = [path * (1.0 / num_paths) for path in path_embbedings]
+    x_vector, y_vector = dy.lookup(lemma_lookup, x_y_vectors[0]), dy.lookup(lemma_lookup, x_y_vectors[1])
+
 
     # Concatenate x and y embeddings
     if x_y_vectors is not None:
-        x_vector, y_vector = dy.lookup(lemma_lookup, x_y_vectors[0]), dy.lookup(lemma_lookup, x_y_vectors[1])
+
         input_vec = dy.concatenate([x_vector, input_vec, y_vector])
 
     h = W1 * input_vec + b1
